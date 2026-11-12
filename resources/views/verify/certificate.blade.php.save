@@ -1,0 +1,317 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Certificate Verification | Aureva Gemstone Laboratory</title>
+
+    <style>
+        :root {
+            --black: #0b0b0b;
+            --panel: #141414;
+            --gold: #c8a05b;
+            --gold-light: #e4c37d;
+            --text: #f4f0e7;
+            --muted: #b8b1a3;
+            --border: rgba(200, 160, 91, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 32px 16px;
+            background:
+                radial-gradient(ellipse at top, #292015 0%, var(--black) 55%);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 12px 28px;
+        }
+
+        .brand {
+            color: var(--gold-light);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(25px, 5vw, 36px);
+            letter-spacing: 3px;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .card {
+            overflow: hidden;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.4);
+        }
+
+        .status {
+            padding: 22px;
+            text-align: center;
+            background: rgba(200, 160, 91, 0.08);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-mark {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            color: var(--gold-light);
+            font-size: 23px;
+            margin-bottom: 10px;
+        }
+
+        .status h2 {
+            margin: 0;
+            color: var(--gold-light);
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .status p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 9px 0 0;
+            line-height: 1.6;
+        }
+
+        .details {
+            padding: 25px;
+        }
+
+        .report-number {
+            color: var(--gold-light);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 23px;
+            overflow-wrap: anywhere;
+            text-align: center;
+            margin: 0 0 25px;
+        }
+        .gemstone-photo-wrap {
+            max-width: 340px;
+            margin: 0 auto 26px;
+            padding: 12px;
+            text-align: center;
+            background: #0b0b0b;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .gemstone-photo {
+            display: block;
+            width: 100%;
+            max-height: 340px;
+            object-fit: contain;
+            margin: 0 auto;
+            border-radius: 6px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0 22px;
+        }
+
+        .field {
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            min-width: 0;
+        }
+
+        .label {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .value {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+            white-space: pre-line;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            padding: 24px 12px 8px;
+        }
+
+        .footer a {
+            color: var(--gold-light);
+            text-decoration: none;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 18px 12px;
+            }
+
+            .details {
+                padding: 18px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-number {
+                font-size: 20px;
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #111;
+                padding: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #999;
+            }
+
+            .status,
+            .brand,
+            .report-number {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <header class="header">
+            <h1 class="brand">AUREVA</h1>
+            <div class="subtitle">Gemstone Laboratory</div>
+        </header>
+
+        <section class="card" aria-label="Certificate verification result">
+            <div class="status">
+                <div class="status-mark" aria-hidden="true">✓</div>
+                <h2>Certificate Verified</h2>
+                <p>
+                    This certificate record was found in the AGL verification system.
+                    The details below correspond to the published record.
+                </p>
+            </div>
+
+            <div class="details">
+                
+<div class="report-number">
+    {{ $certificate->report_number }}
+</div>
+
+@if ($photoUrl)
+    <div class="gemstone-photo-wrap">
+        <img
+            class="gemstone-photo"
+            		src="{{ $photoUrl }}"
+            		alt="Gemstone for report {{ $certificate->report_number }}"
+        		>
+    		</div>
+		@endif
+
+                <div class="grid">
+                    <div class="field">
+                        <span class="label">Gemstone Identification</span>
+                        <div class="value">{{ $certificate->identification ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Species</span>
+                        <div class="value">{{ $certificate->species ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Variety</span>
+                        <div class="value">{{ $certificate->variety ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Weight (ct)</span>
+                        <div class="value">{{ $certificate->weight !== null ? $certificate->weight : '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Dimensions</span>
+                        <div class="value">{{ $certificate->dimensions ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Color</span>
+                        <div class="value">{{ $certificate->color ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Clarity</span>
+                        <div class="value">{{ $certificate->clarity ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Shape &amp; Cut</span>
+                        <div class="value">{{ $certificate->shape ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Treatment</span>
+                        <div class="value">{{ $certificate->treatment ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Origin</span>
+                        <div class="value">{{ $certificate->origin ?: '—' }}</div>
+                    </div>
+
+                    <div class="field">
+                        <span class="label">Issue Date</span>
+                        <div class="value">
+                            {{ $certificate->issue_date ? \Illuminate\Support\Carbon::parse($certificate->issue_date)->format('d-m-Y') : '—' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div>Independent Gemological Laboratory</div>
+            <a href="https://www.agldiamonds.com/">www.agldiamonds.com</a>
+            <div>For questions about this report, contact AGL directly.</div>
+        </footer>
+    </main>
+</body>
+</html>

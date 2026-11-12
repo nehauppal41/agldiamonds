@@ -1,0 +1,186 @@
+{{--
+    SECTION 3 (GEMSTONE VERSION) - LEFT SECTION
+    "GEMSTONE CERTIFICATE" title, subtitle with gold rules, and the certificate
+    fields - same fields, same order and same value logic as the gemstone
+    certificate front (Report No. ... Hardness).
+
+    Expects: $certificate
+    Note: uses the same .agl-left* class names as left-section.blade.php, so
+    include only ONE of the two on a card.
+--}}
+<style>
+.agl-left {
+    --agl-navy: #10284b;
+    --agl-label: #1a3677;
+    --agl-value: #1f2a44;
+    --agl-gold: #d3a84e;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1102px;
+    height: 770px;
+    z-index: 3;
+}
+
+/* TITLE */
+.agl-left__title {
+    position: absolute;
+    left: 0;
+    top: 213px;
+    width: 1102px;
+    text-align: center;
+    color: var(--agl-navy);
+    font: 700 66px/1 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+}
+
+.agl-left__subtitle {
+    position: absolute;
+    left: 0;
+    top: 277px;
+    width: 1102px;
+    text-align: center;
+    color: var(--agl-navy);
+    font: 500 21px/1 'Montserrat', Arial, sans-serif;
+    letter-spacing: 0.245em;
+    padding-left: 0.245em;          /* balances the trailing letter-space so the text is truly centred */
+    white-space: nowrap;
+}
+
+.agl-left__rule {
+    position: absolute;
+    top: 284px;
+    height: 2px;
+}
+.agl-left__rule--l { left: 100px; width: 118px; background: linear-gradient(90deg, rgba(211,168,78,0), var(--agl-gold)); }
+.agl-left__rule--r { left: 893px; width: 108px; background: linear-gradient(90deg, var(--agl-gold), rgba(211,168,78,0)); }
+
+/* FIELDS - one grid, so every label / colon / value lines up in three columns */
+.agl-left__fields {
+    --agl-pitch: 42px;
+    position: absolute;
+    left: 71px;
+    top: 322px;
+    width: 844px;
+    display: grid;
+    grid-template-columns: minmax(188px, max-content) 30px minmax(0, 1fr);
+    grid-auto-rows: minmax(var(--agl-pitch), auto);
+    align-items: center;
+}
+
+.agl-field { display: contents; }
+
+.agl-field__label {
+    color: var(--agl-label);
+    font: 700 25px/1.2 'Open Sans', Arial, sans-serif;
+    white-space: nowrap;
+}
+
+.agl-field__colon {
+    color: var(--agl-label);
+    font: 700 25px/1.2 'Open Sans', Arial, sans-serif;
+    text-align: center;
+}
+
+.agl-field__value {
+    min-width: 0;
+    padding-left: 15px;
+    color: var(--agl-value);
+    font: 500 30px/1.2 'EB Garamond', Georgia, serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
+
+<div class="agl-left">
+
+    <div class="agl-left__title">GEMSTONE CERTIFICATE</div>
+    <div class="agl-left__rule agl-left__rule--l"></div>
+    <div class="agl-left__subtitle">IDENTIFICATION &amp; AUTHENTICITY REPORT</div>
+    <div class="agl-left__rule agl-left__rule--r"></div>
+
+    <div class="agl-left__fields">
+
+        <div class="agl-field">
+            <div class="agl-field__label">Report No.</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->report_number }}</div>
+        </div>
+
+        @if(filled($certificate->identification))
+        <div class="agl-field">
+            <div class="agl-field__label">Gemstone</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->identification }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->weight))
+        <div class="agl-field">
+            <div class="agl-field__label">Weight (CT)</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->weight }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->dimensions))
+        <div class="agl-field">
+            <div class="agl-field__label">Dimensions</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->dimensions }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->color))
+        <div class="agl-field">
+            <div class="agl-field__label">Color</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->color }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->origin))
+        <div class="agl-field">
+            <div class="agl-field__label">Origin</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->origin }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->shape))
+        <div class="agl-field">
+            <div class="agl-field__label">Shape &amp; Cut</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->shape }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->treatment))
+        <div class="agl-field">
+            <div class="agl-field__label">Treatment</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->treatment }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->refractive_index))
+        <div class="agl-field">
+            <div class="agl-field__label">Refractive Index</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->refractive_index }}</div>
+        </div>
+        @endif
+
+        @if(filled($certificate->hardness))
+        <div class="agl-field">
+            <div class="agl-field__label">Hardness</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $certificate->hardness }}</div>
+        </div>
+        @endif
+
+    </div>
+
+</div>

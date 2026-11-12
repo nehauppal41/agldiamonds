@@ -1,0 +1,55 @@
+
+# Environment and sensitive credentials
+.env
+.env.*
+!.env.example
+auth.json
+
+# Logs and temporary files
+*.log
+.phpunit.result.cache
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+
+# Laravel generated files
+/bootstrap/cache/*.php
+/public/storage
+
+# Composer dependencies
+/vendor/
+
+# Node dependencies and generated frontend assets
+/node_modules/
+/public/build/
+/public/hot
+/public/fonts-manifest.dev.json
+
+# IDE and editor settings
+/.idea/
+/.vscode/
+/.nova/
+/.zed/
+/.cursor/
+/.codex/
+.phpactor.json
+_ide_helper.php
+
+# PHPUnit
+/.phpunit.cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Local development files
+Homestead.json
+Homestead.yaml
+
+# Temporary backup and archive files
+*.zip
+*.bak
+*.backup
+*.tmp

@@ -1,0 +1,241 @@
+{{--
+    SECTION 3 - LEFT SECTION
+    "GEMSTONE CERTIFICATE" title, subtitle with gold rules, and all certificate
+    fields (same fields, same order and same value logic as the previous template).
+    Expects: $diamond
+--}}
+@php
+    $aglIsStudded = strtolower($diamond->diamond_type ?? '') === 'studded';
+@endphp
+<style>
+.agl-left {
+    --agl-navy: #10284b;
+    --agl-label: #1a3677;
+    --agl-value: #1f2a44;
+    --agl-gold: #d3a84e;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1102px;
+    height: 770px;
+    z-index: 3;
+}
+
+/* TITLE */
+.agl-left__title {
+    position: absolute;
+    left: 0;
+    top: 213px;
+    width: 1102px;
+    text-align: center;
+    color: var(--agl-navy);
+    font: 700 66px/1 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+}
+
+.agl-left__subtitle {
+    position: absolute;
+    left: 0;
+    top: 277px;
+    width: 1102px;
+    text-align: center;
+    color: var(--agl-navy);
+    font: 500 21px/1 'Montserrat', Arial, sans-serif;
+    letter-spacing: 0.245em;
+    padding-left: 0.245em;          /* balances the trailing letter-space so the text is truly centred */
+    white-space: nowrap;
+}
+
+.agl-left__rule {
+    position: absolute;
+    top: 284px;
+    height: 2px;
+}
+.agl-left__rule--l { left: 100px; width: 118px; background: linear-gradient(90deg, rgba(211,168,78,0), var(--agl-gold)); }
+.agl-left__rule--r { left: 893px; width: 108px; background: linear-gradient(90deg, var(--agl-gold), rgba(211,168,78,0)); }
+
+/* FIELDS - one grid, so every label / colon / value lines up in three columns */
+.agl-left__fields {
+    --agl-pitch: 40px;
+    position: absolute;
+    left: 71px;
+    top: 320px;
+    width: 844px;
+    display: grid;
+    grid-template-columns: minmax(188px, max-content) 30px minmax(0, 1fr);
+    grid-auto-rows: minmax(var(--agl-pitch), auto);
+    align-items: center;
+}
+.agl-left__fields--studded { --agl-pitch: 34px; }
+
+.agl-field { display: contents; }
+
+.agl-field__label {
+    color: var(--agl-label);
+    font: 700 25px/1.2 'Open Sans', Arial, sans-serif;
+    white-space: nowrap;
+}
+
+.agl-field__colon {
+    color: var(--agl-label);
+    font: 700 25px/1.2 'Open Sans', Arial, sans-serif;
+    text-align: center;
+}
+
+.agl-field__value {
+    min-width: 0;
+    padding-left: 15px;
+    color: var(--agl-value);
+    font: 500 30px/1.2 'EB Garamond', Georgia, serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Comments may wrap onto two lines */
+.agl-field__value--wrap {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+</style>
+
+<div class="agl-left">
+
+    <div class="agl-left__title">GEMSTONE CERTIFICATE</div>
+    <div class="agl-left__rule agl-left__rule--l"></div>
+    <div class="agl-left__subtitle">IDENTIFICATION &amp; AUTHENTICITY REPORT</div>
+    <div class="agl-left__rule agl-left__rule--r"></div>
+
+    <div class="agl-left__fields {{ $aglIsStudded ? 'agl-left__fields--studded' : '' }}">
+
+        <!-- Generated certificate identifier -->
+        <div class="agl-field">
+            <div class="agl-field__label">Report No.</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $diamond->report_number }}</div>
+        </div>
+
+        <!-- Description -->
+                  @if(filled($diamond->description))
+<div class="agl-field">
+            <div class="agl-field__label">Description</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $diamond->description ?: '—' }}</div>
+        </div>
+          @endif
+
+        <!-- Studded-only form inputs -->
+        @if($aglIsStudded)
+
+            {{-- Original Jewellery Type field retained for future use:
+            <div class="agl-field">
+                <div class="agl-field__label">Jewellery Type</div>
+                <div class="agl-field__colon">:</div>
+                <div class="agl-field__value">{{ $diamond->jewellery_type ?: '—' }}</div>
+            </div>
+            --}}
+
+                      @if(filled($diamond->metal))
+<div class="agl-field">
+                <div class="agl-field__label">Metal</div>
+                <div class="agl-field__colon">:</div>
+                <div class="agl-field__value">{{ $diamond->metal ?: '—' }}</div>
+            </div>
+          @endif
+
+        @endif
+
+        <!-- Total Weight -->
+                  @if(filled($diamond->total_weight))
+<div class="agl-field">
+            <div class="agl-field__label">Total Weight</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">
+                {{ $diamond->total_weight !== null && $diamond->total_weight !== ''
+                    ? $diamond->total_weight . ' g'
+                    : '—' }}
+            </div>
+        </div>
+          @endif
+
+        <!-- Diamond Shape -->
+                  @if(filled($diamond->diamond_shape))
+<div class="agl-field">
+            <div class="agl-field__label">Diamond Shape</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $diamond->diamond_shape ?: '—' }}</div>
+        </div>
+          @endif
+
+        <!-- Total Carat Weight -->
+                  @if(filled($diamond->total_carat_weight))
+<div class="agl-field">
+            <div class="agl-field__label">Total Carat Weight</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">
+                {{ $diamond->total_carat_weight !== null && $diamond->total_carat_weight !== ''
+                    ? $diamond->total_carat_weight . ' ct'
+                    : '—' }}
+            </div>
+        </div>
+          @endif
+
+        <!-- Optional Center Diamond Weight -->
+                  @if(filled($diamond->center_diamond_weight))
+<div class="agl-field">
+            <div class="agl-field__label">Center Diamond Weight</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">
+                {{ $diamond->center_diamond_weight !== null && $diamond->center_diamond_weight !== ''
+                    ? $diamond->center_diamond_weight . ' ct'
+                    : '—' }}
+            </div>
+        </div>
+          @endif
+
+        <!-- Colour Grade -->
+                  @if(filled($diamond->color_grade))
+<div class="agl-field">
+            <div class="agl-field__label">Colour Grade</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $diamond->color_grade ?: '—' }}</div>
+        </div>
+          @endif
+
+        <!-- Clarity Grade -->
+                  @if(filled($diamond->clarity_grade))
+<div class="agl-field">
+            <div class="agl-field__label">Clarity Grade</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">{{ $diamond->clarity_grade ?: '—' }}</div>
+        </div>
+          @endif
+
+        <!-- Comments / Additional Notes -->
+                  @if(filled($diamond->diamond_comments))
+<div class="agl-field">
+            <div class="agl-field__label">Comments</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value agl-field__value--wrap">{{ $diamond->diamond_comments ?: '—' }}</div>
+        </div>
+          @endif
+
+        <!-- Shared certificate form input -->
+                  @if(filled($diamond->issue_date))
+<div class="agl-field">
+            <div class="agl-field__label">Issue Date</div>
+            <div class="agl-field__colon">:</div>
+            <div class="agl-field__value">
+                {{ $diamond->issue_date
+                    ? \Carbon\Carbon::parse($diamond->issue_date)->format('d.m.Y')
+                    : '—' }}
+            </div>
+        </div>
+          @endif
+
+    </div>
+
+</div>

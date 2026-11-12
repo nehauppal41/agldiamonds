@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Redirect non-www to www
+RewriteCond %{HTTP_HOST} ^agldiamonds\.com$ [NC]
+RewriteRule ^(.*)$ https://www.agldiamonds.com/$1 [R=301,L]
+
+# Redirect HTTP to HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://www.agldiamonds.com/$1 [R=301,L]
+# Route AGL admin URLs through Laravel without changing the existing homepage
+RewriteRule ^admin(/.*)?$ public/index.php [END,QSA]
+
+# Route public certificate verification URLs through Laravel
+RewriteRule ^verify(/.*)?$ public/index.php [END,QSA]

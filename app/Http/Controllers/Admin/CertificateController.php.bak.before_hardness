@@ -1,0 +1,394 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Certificate;
+use App\Models\Diamond;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
+
+class CertificateController extends Controller
+{
+    public function index(Request $request)
+    {
+        $type = $request->query('type', 'gemstone');
+
+        if (! in_array($type, ['gemstone', 'diamond'], true)) {
+            $type = 'gemstone';
+        }
+
+        $trash = $request->boolean('trash');
+
+        $certificateQuery = $trash
+            ? Certificate::onlyTrashed()
+            : Certificate::query();
+
+        $diamondQuery = $trash
+            ? Diamond::onlyTrashed()
+            : Diamond::query();
+
+        $certificates = $certificateQuery
+            ->latest()
+            ->paginate(15, ['*'], 'gemstone_page')
+            ->appends(array_filter([
+                'type' => 'gemstone',
+                'trash' => $trash ? 1 : null,
+            ], static fn ($value) => $value !== null));
+
+        $diamonds = $diamondQuery
+            ->latest()
+            ->paginate(15, ['*'], 'diamond_page')
+            ->appends(array_filter([
+                'type' => 'diamond',
+                'trash' => $trash ? 1 : null,
+            ], static fn ($value) => $value !== null));
+
+        return view('admin.certificates.index', compact(
+            'certificates',
+            'diamonds',
+            'type',
+            'trash'
+        ));
+    }
+    public function create()
+    {
+        return view('admin.certificates.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'identification' => ['required', 'string', 'max:150'],
+            'shape'          => ['nullable', 'string', 'max:100'],
+            'weight'         => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'dimensions'     => ['nullable', 'string', 'max:100'],
+            'color'          => ['nullable', 'string', 'max:100'],
+            'clarity'        => ['nullable', 'string', 'max:100'],
+        	'refractive_index' => [
+    		'nullable',
+    		'string',
+    		'max:30',
+    		'regex:/^\d{1,2}\.\d{1,3}\s*-\s*\d{1,2}\.\d{1,3}$/',
+			],
+            'treatment'      => ['nullable', 'string', 'max:10000'],
+            'species'        => ['nullable', 'string', 'max:100'],
+            'variety'        => ['nullable', 'string', 'max:100'],
+            'origin'         => ['nullable', 'string', 'max:150'],
+            'comments'       => ['nullable', 'string', 'max:10000'],
+            'issue_date'     => ['nullable', 'date'],
+            'is_published'   => ['nullable', 'boolean'],
+            'gemstone_photo' => [
+                'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120',
+            ],
+        ]);
+
+        $timestamp = now();
+
+        do {
+            $reportNumber = 'AGL' . $timestamp->format('ymdHis');
+
+            if (! Certificate::where('report_number', $reportNumber)->exists()) {
+                break;
+            }
+
+            $timestamp->addSecond();
+        } while (true);
+
+        $photoPath = null;
+
+        if ($request->hasFile('gemstone_photo')) {
+            $uploadDirectory = dirname(public_path())
+                . DIRECTORY_SEPARATOR . 'uploads'
+                . DIRECTORY_SEPARATOR . 'certificates';
+
+            File::ensureDirectoryExists($uploadDirectory, 0755, true);
+
+            $photo = $request->file('gemstone_photo');
+            $extension = strtolower($photo->extension());
+            $filename = Str::uuid()->toString() . '.' . $extension;
+
+            $photo->move($uploadDirectory, $filename);
+
+            $photoPath = 'uploads/certificates/' . $filename;
+        }
+
+        $certificate = Certificate::create([
+            'report_number'  => $reportNumber,
+            'public_id'      => (string) Str::uuid(),
+            'identification' => $validated['identification'],
+            'shape'          => $validated['shape'] ?? null,
+            'weight'         => $validated['weight'] ?? null,
+            'dimensions'     => $validated['dimensions'] ?? null,
+            'color'          => $validated['color'] ?? null,
+            'clarity'        => $validated['clarity'] ?? null,
+        	'refractive_index' => $validated['refractive_index'] ?? null,
+            'treatment'      => $validated['treatment'] ?? null,
+            'species'        => $validated['species'] ?? null,
+            'variety'        => $validated['variety'] ?? null,
+            'origin'         => $validated['origin'] ?? null,
+            'comments'       => $validated['comments'] ?? null,
+            'gemstone_photo' => $photoPath,
+            'issue_date'     => $validated['issue_date'] ?? null,
+            'is_published'   => $request->boolean('is_published'),
+            'created_by'     => $request->user()->id,
+        ]);
+
+        return redirect()
+            ->route('admin.certificates.index')
+            ->with(
+                'status',
+                'Certificate ' . $certificate->report_number
+                . ' was created successfully.'
+            );
+    }
+public function edit(Certificate $certificate)
+{
+    return view('admin.certificates.create', [
+        'editing' => true,
+        'certificateType' => 'gemstone',
+        'record' => $certificate,
+        'certificate' => $certificate,
+    ]);
+}
+
+public function update(Request $request, Certificate $certificate)
+{
+    $validated = $request->validate([
+        'identification' => ['required', 'string', 'max:150'],
+        'shape' => ['nullable', 'string', 'max:100'],
+        'weight' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+        'dimensions' => ['nullable', 'string', 'max:100'],
+        'color' => ['nullable', 'string', 'max:100'],
+        'clarity' => ['nullable', 'string', 'max:100'],
+        'refractive_index' => ['nullable', 'numeric', 'gt:0', 'max:99.999'],
+        'treatment' => ['nullable', 'string', 'max:10000'],
+        'species' => ['nullable', 'string', 'max:100'],
+        'variety' => ['nullable', 'string', 'max:100'],
+        'origin' => ['nullable', 'string', 'max:150'],
+        'comments' => ['nullable', 'string', 'max:10000'],
+        'issue_date' => ['nullable', 'date'],
+        'is_published' => ['nullable', 'boolean'],
+        'gemstone_photo' => [
+            'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120',
+        ],
+    ]);
+
+    $photoPath = $certificate->gemstone_photo;
+
+    if ($request->hasFile('gemstone_photo')) {
+        $uploadDirectory = dirname(public_path())
+            . DIRECTORY_SEPARATOR . 'uploads'
+            . DIRECTORY_SEPARATOR . 'certificates';
+
+        File::ensureDirectoryExists($uploadDirectory, 0755, true);
+
+        $photo = $request->file('gemstone_photo');
+        $extension = strtolower($photo->extension());
+        $filename = Str::uuid()->toString() . '.' . $extension;
+
+        $photo->move($uploadDirectory, $filename);
+        $photoPath = 'uploads/certificates/' . $filename;
+    }
+
+    $certificate->update([
+        'identification' => $validated['identification'],
+        'shape' => $validated['shape'] ?? null,
+        'weight' => $validated['weight'] ?? null,
+        'dimensions' => $validated['dimensions'] ?? null,
+        'color' => $validated['color'] ?? null,
+        'clarity' => $validated['clarity'] ?? null,
+        'refractive_index' => $validated['refractive_index'] ?? null,
+        'treatment' => $validated['treatment'] ?? null,
+        'species' => $validated['species'] ?? null,
+        'variety' => $validated['variety'] ?? null,
+        'origin' => $validated['origin'] ?? null,
+        'comments' => $validated['comments'] ?? null,
+        'gemstone_photo' => $photoPath,
+        'issue_date' => $validated['issue_date'] ?? null,
+        'is_published' => $request->boolean('is_published'),
+    ]);
+
+    return redirect()
+        ->route('admin.certificates.index', ['type' => 'gemstone'])
+        ->with('status', 'Gemstone certificate updated successfully.');
+}
+
+public function destroy(Certificate $certificate)
+{
+    $certificate->delete();
+
+    return redirect()
+        ->route('admin.certificates.index', ['type' => 'gemstone'])
+        ->with('status', 'Gemstone certificate moved to Trash.');
+}
+
+public function restore(string $id)
+{
+    $certificate = Certificate::onlyTrashed()->findOrFail($id);
+    $certificate->restore();
+
+    return redirect()
+        ->route('admin.certificates.index', [
+            'type' => 'gemstone',
+            'trash' => 1,
+        ])
+        ->with('status', 'Gemstone certificate restored successfully.');
+}
+
+public function verify(string $publicId)
+{
+    $certificate = Certificate::where('public_id', $publicId)
+        ->where('is_published', true)
+        ->firstOrFail();
+
+    $photoUrl = $certificate->gemstone_photo
+        ? $this->gemstonePhotoDataUri($certificate)
+        : null;
+
+    return response()
+        ->view('verify.certificate', compact('certificate', 'photoUrl'))
+        ->header('Cache-Control', 'no-store, private');
+}
+    public function printFront(Certificate $certificate)
+    {
+        return $this->renderPrintView($certificate, 'front');
+    }
+
+    public function printBack(Certificate $certificate)
+    {
+        $photoUrl = $this->gemstonePhotoDataUri($certificate);
+        $qrDataUri = $this->verificationQrDataUri($certificate);
+
+        return response()
+            ->view('admin.sections.back', [
+                'certificate' => $certificate,
+                'photoUrl' => $photoUrl,
+                'qrDataUri' => $qrDataUri,
+            ])
+            ->header('Cache-Control', 'no-store, private');
+    }
+public function printWhiteFront(Certificate $certificate)
+{
+    return $this->renderWhitePrintView($certificate, 'front');
+}
+
+public function printWhiteBack(Certificate $certificate)
+{
+    return $this->renderWhitePrintView($certificate, 'back');
+}
+
+private function renderWhitePrintView(Certificate $certificate, string $side)
+{
+    abort_unless(in_array($side, ['front', 'back'], true), 404);
+
+    $photoUrl = $this->gemstonePhotoDataUri($certificate);
+    $qrDataUri = $this->verificationQrDataUri($certificate);
+
+    return response()
+        ->view("admin.certificates.print.white.{$side}", [
+            'certificate' => $certificate,
+            'photoUrl' => $photoUrl,
+            'qrDataUri' => $qrDataUri,
+        ])
+        ->header('Cache-Control', 'no-store, private');
+}
+    private function renderPrintView(Certificate $certificate, string $side)
+    {
+        $photoUrl = $this->gemstonePhotoDataUri($certificate);
+        $qrDataUri = $this->verificationQrDataUri($certificate);
+
+        return response()
+            ->view("admin.certificates.print.{$side}", [
+                'certificate' => $certificate,
+                'photoUrl' => $photoUrl,
+                'qrDataUri' => $qrDataUri,
+            ])
+            ->header('Cache-Control', 'no-store, private');
+    }
+
+    private function gemstonePhotoDataUri(Certificate $certificate): string
+    {
+        $fallback = 'data:image/svg+xml;base64,' . base64_encode(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">'
+            . '<rect width="100%" height="100%" fill="#111"/>'
+            . '<text x="50%" y="50%" fill="#c8a05b" font-size="18" '
+            . 'text-anchor="middle" dominant-baseline="middle">AGL</text>'
+            . '</svg>'
+        );
+
+        if (! $certificate->gemstone_photo) {
+            return $fallback;
+        }
+
+        $baseDirectory = realpath(dirname(public_path()) . '/uploads/certificates');
+        $candidate = dirname(public_path()) . '/' . $certificate->gemstone_photo;
+        $realFile = realpath($candidate);
+
+        if (
+            ! $baseDirectory
+            || ! $realFile
+            || ! str_starts_with($realFile, $baseDirectory . DIRECTORY_SEPARATOR)
+            || ! is_file($realFile)
+            || ! is_readable($realFile)
+        ) {
+            return $fallback;
+        }
+
+        $mime = File::mimeType($realFile);
+
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return $fallback;
+        }
+
+        $contents = file_get_contents($realFile);
+
+        if ($contents === false) {
+            return $fallback;
+        }
+
+        return 'data:' . $mime . ';base64,' . base64_encode($contents);
+    }
+
+    private function verificationQrDataUri(Certificate $certificate): string
+    {
+        $url = url('/verify/' . $certificate->public_id);
+        $temporaryFile = tempnam(sys_get_temp_dir(), 'agl-qr-');
+
+        if ($temporaryFile === false) {
+            abort(500, 'Unable to prepare the verification QR code.');
+        }
+
+        try {
+            $process = new Process([
+                '/bin/qrencode',
+                '-t', 'PNG',
+                '-o', $temporaryFile,
+                '-s', '6',
+                '-m', '1',
+                $url,
+            ]);
+
+            $process->setTimeout(10);
+            $process->run();
+
+            if (! $process->isSuccessful() || ! is_file($temporaryFile)) {
+                abort(500, 'Unable to generate the verification QR code.');
+            }
+
+            $png = file_get_contents($temporaryFile);
+
+            if ($png === false) {
+                abort(500, 'Unable to read the verification QR code.');
+            }
+
+            return 'data:image/png;base64,' . base64_encode($png);
+        } finally {
+            if (is_file($temporaryFile)) {
+                @unlink($temporaryFile);
+            }
+        }
+    }
+}
